@@ -1,8 +1,5 @@
 # FastAPI_Project
 
-# Project Title
-FastAPI_Project
-
 ## Brief Description
 A sample FastAPI application that uses PostgreSQL for data storage. The application and the database are each containerized with Podman.
 
