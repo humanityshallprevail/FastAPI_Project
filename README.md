@@ -2,7 +2,7 @@
 
 ## Brief Description
 A sample FastAPI application that uses PostgreSQL for data storage. The application and the database are each containerized with Podman.
-
+# INFO FOR SUPERVISORS - RESULTS OF THE TESTS ARE IN JSON FILE
 ## Prerequisites
 - Python 3.8 or later
 - Podman
