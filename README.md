@@ -52,3 +52,14 @@ podman-compose up
 2. Navigate to `http://localhost:8000` in your web browser to interact with the FastAPI application.
 
 
+## Common Issues
+
+### PostgreSQL Already Running
+If you encounter an error message like `rootlessport listen tcp 0.0.0.0:5432: bind: address already in use`, this means that PostgreSQL is already running on your machine and occupying port 5432. 
+
+You can stop it by running:
+
+```bash
+sudo systemctl stop postgresql
+
+
