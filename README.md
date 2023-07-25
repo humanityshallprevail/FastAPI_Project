@@ -22,16 +22,21 @@ git clone https://github.com/humanityshallprevail/FastAPI_Project.git
 ```bash
 cd FastAPI_Project
 ```
+3. Set up a virtual environment:
 
-3. Install the necessary Python packages:
+```bash
+python3 -m venv venv
+```
+
+4. Install the necessary Python packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Make sure Podman and Podman-compose are installed. These tools are used to create the containers for the application and the database.
+5. Make sure Podman and Podman-compose are installed. These tools are used to create the containers for the application and the database.
 
-5. You need to create a .env file with the following variables:
+6. You need to create a .env file with the following variables:
 
 ```env
 DB_USER=<Your Database User>
@@ -61,5 +66,13 @@ You can stop it by running:
 
 ```bash
 sudo systemctl stop postgresql
+```
+### Issue: The application doesn't start up at the first podman-compose up command.
+
+Solution:
+
+Sometimes, Docker/Podman services can fail to start if they're not ready yet or if there's a transient error. If you encounter this issue, simply try running podman-compose down followed by podman-compose up again.
+
+Always ensure that you have the latest versions of Podman/Docker and Podman-compose/Docker-compose installed on your system, as this can help avoid some common issues.
 
 
