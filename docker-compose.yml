@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-    image: docker.io/library/postgres:13
+    image: docker.io/library/postgres:15.1-alpine
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -19,3 +19,14 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+  test:
+    build: .
+    command: /bin/sh -c "sleep 30 && pytest"
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - db
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+

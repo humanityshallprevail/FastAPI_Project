@@ -1,12 +1,9 @@
-FROM python:3.11.4
-
+FROM python:3.10-slim
 
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-
-# Add this line to print out the list of installed packages
 RUN pip list
 
 COPY . .

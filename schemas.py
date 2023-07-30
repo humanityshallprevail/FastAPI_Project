@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
@@ -13,9 +13,8 @@ class Menu(MenuBase):
     id: str #int
     submenus_count: Optional[int] = 0
     dishes_count: Optional[int] = 0
+    model_config = ConfigDict(from_attributes = True)
 
-    class Config:
-        orm_mode = True
 #-------------------------------------
 
 class SubMenuBase(BaseModel):
@@ -29,9 +28,8 @@ class SubMenu(SubMenuBase):
     id: str
     title: str
     dishes_count: Optional[int] = 0
+    model_config = ConfigDict(from_attributes = True)
 
-    class Config:
-        orm_mode = True
 
 #------------------------------------
 
@@ -54,5 +52,5 @@ class DishModel(DishBase):
     def price(self):
         return str(round(float(self._price), 2))
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes = True)
+
