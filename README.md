@@ -62,17 +62,31 @@ In our project, we've implemented various tests to ensure the proper functioning
 
 ## Test Coverage
 
-1. **Test to create new dish in a submenu**: We have a test to ensure the POST request `/menu/{menu_id}/{submenu_id}` is working correctly. The test simulates the creation of a new dish in a submenu and checks if the response is 200 (OK) and the returned dish is the same as the one we created.
+1. **Test to create a new menu**: This test sends a POST request to the `/api/v1/menus` endpoint with a new menu in the request body. It verifies the response status is 201 (Created) and that the response body contains the ID of the newly created menu.
 
-2. **Test to get all menus**: This test sends a GET request to the `/menus` endpoint. It checks if the response status is 200 (OK) and that the response body contains a list of menus.
+2. **Test to get a specific menu**: This test sends a GET request to the `/api/v1/menus/{menu_id}` endpoint with the ID of the previously created menu. It verifies the response status is 200 (OK) and that the returned menu ID matches the created menu ID.
 
-3. **Test to get a specific menu**: This test sends a GET request to the `/menus/{menu_id}` endpoint with a specific menu_id. It verifies that the status is 200 (OK) and the returned menu matches the menu_id requested.
+3. **Test to create submenus and dishes**: This test performs multiple POST requests to create 3 submenus for the newly created menu at `/api/v1/menus/{menu_id}/submenus` endpoint and 2 dishes for each submenu at `/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes` endpoint. It verifies the response status is 201 (Created) for each created submenu and dish.
 
-4. **Test to get all dishes in a submenu**: The test sends a GET request to the `/menu/{menu_id}/{submenu_id}` endpoint. It checks if the response status is 200 (OK) and the returned dishes are indeed from the requested submenu.
+4. **Test to check the count of submenus and dishes**: This test sends GET requests to the `/api/v1/menus/{menu_id}/submenus` and `/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes` endpoints to verify that the count of submenus and dishes matches the expected counts (3 submenus, 2 dishes in each submenu).
 
-5. **Test to check the number of submenus and dishes**: This test ensures that the count functions for submenus and dishes are correctly implemented. It verifies that the returned count from these functions matches the expected count.
+5. **Test to update a dish**: This test sends a PATCH request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}` endpoint with an updated dish in the request body. It verifies that the response status is 200 (OK) and that the updated dish title matches the one in the request body.
 
-6. **Test to check Postman Collection**: We have also integrated our tests with Postman Collection. This enables the third party to easily run the tests by importing the collection into Postman.
+6. **Test to delete a dish**: This test sends a DELETE request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}` endpoint to delete a dish. It verifies that the response status is 200 (OK) and checks the message in the response body.
+
+7. **Test to check a deleted dish**: This test sends a GET request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}` endpoint. It verifies that the response status is 404 (Not Found), meaning the dish was successfully deleted.
+
+8. **Test to update a submenu**: This test sends a PATCH request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}` endpoint with an updated submenu in the request body. It verifies that the response status is 200 (OK) and that the updated submenu title matches the one in the request body.
+
+9. **Test to delete a submenu**: This test sends a DELETE request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}` endpoint to delete a submenu. It verifies that the response status is 200 (OK) and checks the message in the response body.
+
+10. **Test to check a deleted submenu**: This test sends a GET request to the `/api/v1/menus/{menu_id}/submenus/{submenu_id}` endpoint. It verifies that the response status is 404 (Not Found), meaning the submenu was successfully deleted.
+
+11. **Test to update a menu**: This test sends a PATCH request to the `/api/v1/menus/{menu_id}` endpoint with an updated menu in the request body. It verifies that the response status is 200 (OK) and that the updated menu title matches the one in the request body.
+
+12. **Test to delete a menu**: This test sends a DELETE request to the `/api/v1/menus/{menu_id}` endpoint to delete a menu. It verifies that the response status is 200 (OK) and checks the message in the response body.
+
+13. **Test to check a deleted menu**: This test sends a GET request to the `/api/v1/menus/{menu_id}` endpoint. It verifies that the response status is 404 (Not Found), meaning the menu was successfully deleted.
 
 ## Running the Tests
 
