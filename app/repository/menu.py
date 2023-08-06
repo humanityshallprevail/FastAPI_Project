@@ -1,5 +1,5 @@
-from app.models import Menu, SubMenu, Dish
-from app.schemas import MenuCreate, Menu as MenuModel
+from app.model.models import Menu, SubMenu, Dish
+from app.schema.schemas import MenuCreate, Menu as MenuModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException

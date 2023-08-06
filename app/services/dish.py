@@ -1,5 +1,5 @@
 from app.repository.dish import DishRepository
-from app.schemas import DishCreate
+from app.schema.schemas import DishCreate
 from sqlalchemy.orm import Session
 
 class DishService:

@@ -1,9 +1,9 @@
 import uuid
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from sqlalchemy.orm import  sessionmaker, Session
+from app.model.base import Base
 import os
 
-Base = declarative_base()
 
 
 class Menu(Base):
@@ -31,9 +31,9 @@ class Dish(Base):
     description = Column(String)
 
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
+# DATABASE_URL = os.getenv('DATABASE_URL')
+# engine = create_engine(DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+#
+# Base.metadata.drop_all(bind=engine)
+# Base.metadata.create_all(bind=engine)

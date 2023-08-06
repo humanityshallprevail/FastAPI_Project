@@ -6,12 +6,14 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pydantic import BaseModel
 from sqlalchemy import func
 
-from app.models import Menu, SessionLocal
-from app.schemas import MenuCreate, Menu as MenuModel
-from app.models import SubMenu
-from app.schemas import SubMenuCreate, SubMenu as SubMenuModel
-from app.models import Dish
-from app.schemas import DishCreate, DishModel
+from app.model.models import Menu
+# , SessionLocal
+from db.database import SessionLocal
+from app.schema.schemas import MenuCreate, Menu as MenuModel
+from app.model.models import SubMenu
+from app.schema.schemas import SubMenuCreate, SubMenu as SubMenuModel
+from app.model.models import Dish
+from app.schema.schemas import DishCreate, DishModel
 
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session

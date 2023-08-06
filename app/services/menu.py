@@ -1,5 +1,5 @@
 from app.repository.menu import MenuRepository
-from app.schemas import MenuCreate
+from app.schema.schemas import MenuCreate
 from sqlalchemy.orm import Session
 
 class MenuService:

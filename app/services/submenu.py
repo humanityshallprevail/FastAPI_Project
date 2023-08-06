@@ -1,5 +1,5 @@
 from app.repository.submenu import SubMenuRepository
-from app.schemas import SubMenuCreate
+from app.schema.schemas import SubMenuCreate
 from sqlalchemy.orm import Session
 
 class SubMenuService:
