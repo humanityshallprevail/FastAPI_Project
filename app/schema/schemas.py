@@ -1,37 +1,41 @@
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
 class MenuBase(BaseModel):
     title: str
     description: str
 
+
 class MenuCreate(MenuBase):
     pass
 
-class Menu(MenuBase):
-    id: str #int
-    submenus_count: Optional[int] = 0
-    dishes_count: Optional[int] = 0
-    model_config = ConfigDict(from_attributes = True)
 
-#-------------------------------------
+class Menu(MenuBase):
+    id: str  # int
+    submenus_count: int | None = 0
+    dishes_count: int | None = 0
+    model_config = ConfigDict(from_attributes=True)
+
+# -------------------------------------
+
 
 class SubMenuBase(BaseModel):
     title: str
     description: str
 
+
 class SubMenuCreate(SubMenuBase):
     pass
+
 
 class SubMenu(SubMenuBase):
     id: str
     title: str
-    dishes_count: Optional[int] = 0
-    model_config = ConfigDict(from_attributes = True)
+    dishes_count: int | None = 0
+    model_config = ConfigDict(from_attributes=True)
 
 
-#------------------------------------
+# ------------------------------------
 
 class DishBase(BaseModel):
     title: str
@@ -39,18 +43,15 @@ class DishBase(BaseModel):
     price: str
 
 
-
 class DishCreate(DishBase):
     pass
 
+
 class DishModel(DishBase):
     id: str
-    title: str
-    price: str = Field(..., alias="_price")
 
     @property
     def price(self):
-        return str(round(float(self._price), 2))
+        return str(round(float(self.price), 2))
 
-    model_config = ConfigDict(from_attributes = True)
-
+    model_config = ConfigDict(from_attributes=True)

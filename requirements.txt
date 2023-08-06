@@ -6,3 +6,6 @@ pydantic
 pytest
 requests
 httpx
+redis==3.5.3 #type ignore[import]
+pre-commit
+types-redis
