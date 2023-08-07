@@ -84,7 +84,10 @@ In our project, we've implemented various tests to ensure the proper functioning
 ```bash
 podman-compose up -d
 ```
-when docker is running on the background
+# Running the Tests
+
+The tests are run in a container which is started by the command `podman-compose run test pytest`. Note: For now, please, if you have other scenario to test API (for instance via Postman) do not run tests and your scenarios simultaneously (the feature will be added in the upcoming version)
+
 ## Test Coverage (Test for analog of reverse() carried out as well)
 
 1. **Test to create a new menu**: This test sends a POST request to the `/api/v1/menus` endpoint with a new menu in the request body. It verifies the response status is 201 (Created) and that the response body contains the ID of the newly created menu.
@@ -112,10 +115,6 @@ when docker is running on the background
 12. **Test to delete a menu**: This test sends a DELETE request to the `/api/v1/menus/{menu_id}` endpoint to delete a menu. It verifies that the response status is 200 (OK) and checks the message in the response body.
 
 13. **Test to check a deleted menu**: This test sends a GET request to the `/api/v1/menus/{menu_id}` endpoint. It verifies that the response status is 404 (Not Found), meaning the menu was successfully deleted.
-
-## Running the Tests
-
-The tests are run in a container which is started by the command `podman-compose run test pytest`.
 
 
 ## Test Output
