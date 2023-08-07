@@ -1,13 +1,16 @@
-from app.model.models import Menu, SubMenu, Dish
-from app.schema.schemas import MenuCreate, Menu as MenuModel
-from sqlalchemy.orm import Session
-from sqlalchemy import func
 from fastapi import HTTPException
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.model.models import Dish, Menu, SubMenu
+from app.schema.schemas import Menu as MenuModel
+from app.schema.schemas import MenuCreate
+
 
 class MenuRepository:
 
     @staticmethod
-    def create_menu(db: Session, menu: MenuCreate):
+    def create_menu(db: Session, menu: MenuCreate) -> MenuModel:
 
         db_menu = Menu(title=menu.title, description=menu.description)
         db.add(db_menu)
@@ -16,12 +19,12 @@ class MenuRepository:
         return db_menu
 
     @staticmethod
-    def read_menus(db: Session, skip: int = 0, limit: int = 100):
+    def read_menus(db: Session, skip: int = 0, limit: int = 100) -> list[MenuModel]:
 
         subquery = db.query(
             SubMenu.menu_id,
-            func.count(SubMenu.id).label("submenus_count"),
-            func.count(Dish.id).label("dishes_count")
+            func.count(SubMenu.id).label('submenus_count'),
+            func.count(Dish.id).label('dishes_count')
         ).join(Dish, Dish.submenu_id == SubMenu.id).group_by(SubMenu.menu_id).subquery()
 
         menus = db.query(
@@ -32,25 +35,23 @@ class MenuRepository:
             subquery, subquery.c.menu_id == Menu.id
         ).offset(skip).limit(limit).all()
 
-
         for menu, submenus_count, dishes_count in menus:
             menu.submenus_count = submenus_count if submenus_count else 0
             menu.dishes_count = dishes_count if dishes_count else 0
 
-
         return [menu for menu, _, _ in menus]
 
     @staticmethod
-    def read_menu(db: Session, menu_id: str):
+    def read_menu(db: Session, menu_id: str) -> MenuModel:
 
         submenus_subquery = db.query(
             SubMenu.menu_id,
-            func.count(SubMenu.id).label("submenus_count")
+            func.count(SubMenu.id).label('submenus_count')
         ).group_by(SubMenu.menu_id).subquery()
 
         dishes_subquery = db.query(
             SubMenu.menu_id,
-            func.count(Dish.id).label("dishes_count")
+            func.count(Dish.id).label('dishes_count')
         ).join(Dish, Dish.submenu_id == SubMenu.id).group_by(SubMenu.menu_id).subquery()
 
         result = db.query(
@@ -64,7 +65,7 @@ class MenuRepository:
         ).filter(Menu.id == menu_id).first()
 
         if not result:
-            raise HTTPException(status_code=404, detail="menu not found")
+            raise HTTPException(status_code=404, detail='menu not found')
 
         menu, submenus_count, dishes_count = result
         menu.submenus_count = submenus_count or 0
@@ -72,32 +73,30 @@ class MenuRepository:
 
         return menu
 
-
     @staticmethod
-    def update_menu( db: Session, menu_id: str, menu: MenuCreate):
+    def update_menu(db: Session, menu_id: str, menu: MenuCreate) -> MenuModel:
         db_menu = db.query(Menu).filter(Menu.id == menu_id).first()
         if not db_menu:
-            raise HTTPException(status_code=404, detail="menu not found")
+            raise HTTPException(status_code=404, detail='menu not found')
         for var, value in menu.model_dump().items():
             setattr(db_menu, var, value) if value else None
         db.commit()
         db.refresh(db_menu)
         return db_menu
 
-
     @staticmethod
-    def delete_menu( db: Session, menu_id: str):
+    def delete_menu(db: Session, menu_id: str) -> dict[str, str]:
         db_menu = db.query(Menu).filter(Menu.id == menu_id).first()
         if not db_menu:
-            raise HTTPException(status_code=404, detail="menu not found")
+            raise HTTPException(status_code=404, detail='menu not found')
         db.delete(db_menu)
         db.commit()
-        return {"message": "Menu deleted"}
+        return {'message': 'Menu deleted'}
 
     @staticmethod
-    def delete_all_menus(db: Session):
+    def delete_all_menus(db: Session) -> dict[str, str]:
         db.query(Dish).delete()
         db.query(SubMenu).delete()
         db.query(Menu).delete()
         db.commit()
-        return {"message": "All menus, submenus, and dishes have been deleted"}
+        return {'message': 'All menus, submenus, and dishes have been deleted'}

@@ -4,6 +4,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.cache_manager import get_from_cache, invalidate_cache, set_in_cache
+from app.model.models import Menu as MenuModel
 from app.repository.menu import MenuRepository
 from app.schema.schemas import MenuCreate
 
@@ -13,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 class MenuService:
 
     @staticmethod
-    def create_menu(db: Session, menu: MenuCreate):
+    def create_menu(db: Session, menu: MenuCreate) -> MenuModel:
         new_menu = MenuRepository.create_menu(db, menu)
         cache_key = 'menus-0-100'
         invalidate_cache(cache_key)
@@ -21,7 +22,7 @@ class MenuService:
         return new_menu
 
     @staticmethod
-    def read_menus(db: Session, skip: int = 0, limit: int = 100):
+    def read_menus(db: Session, skip: int = 0, limit: int = 100) -> list[MenuModel]:
         cache_key = f'menus-{skip}-{limit}'
 
         cached_menus = get_from_cache(cache_key)
@@ -51,7 +52,7 @@ class MenuService:
         return menus
 
     @staticmethod
-    def read_menu(db: Session, menu_id: str):
+    def read_menu(db: Session, menu_id: str) -> MenuModel:
         cache_key = f'menus-{menu_id}'
 
         cached_menu = get_from_cache(cache_key)
@@ -79,7 +80,7 @@ class MenuService:
         return menu
 
     @staticmethod
-    def update_menu(db: Session, menu_id: str, menu: MenuCreate):
+    def update_menu(db: Session, menu_id: str, menu: MenuCreate) -> MenuModel:
 
         updated_menu = MenuRepository.update_menu(db, menu_id, menu)
 
@@ -99,7 +100,7 @@ class MenuService:
         return updated_menu
 
     @staticmethod
-    def delete_menu(db: Session, menu_id: str):
+    def delete_menu(db: Session, menu_id: str) -> dict[str, str]:
         deleted_menu = MenuRepository.delete_menu(db, menu_id)
 
         cache_key = f'menus-{menu_id}'
@@ -111,7 +112,7 @@ class MenuService:
         return deleted_menu
 
     @staticmethod
-    def delete_all_menus(db: Session):
+    def delete_all_menus(db: Session) -> dict[str, str]:
         deleted_menus = MenuRepository.delete_all_menus(db)
 
         invalidate_cache('menus-0-100')

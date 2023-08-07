@@ -4,6 +4,7 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.cache_manager import get_from_cache, invalidate_cache, set_in_cache
+from app.model.models import SubMenu as SubMenuModel
 from app.repository.submenu import SubMenuRepository
 from app.schema.schemas import SubMenuCreate
 
@@ -11,7 +12,7 @@ from app.schema.schemas import SubMenuCreate
 class SubMenuService:
 
     @staticmethod
-    def create_submenu(db: Session, menu_id: str, submenu: SubMenuCreate):
+    def create_submenu(db: Session, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
 
         new_submenu = SubMenuRepository.create_submenu(db, menu_id, submenu)
         cache_key_list = f'submenus-{menu_id}-0-100'
@@ -19,7 +20,7 @@ class SubMenuService:
         return new_submenu
 
     @staticmethod
-    def read_submenus(db: Session, menu_id: str, skip: int = 0, limit: int = 100):
+    def read_submenus(db: Session, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
         cache_key = f'submenus-{menu_id}-{skip}-{limit}'
 
         cached_submenus = get_from_cache(cache_key)
@@ -48,7 +49,7 @@ class SubMenuService:
         return submenus
 
     @staticmethod
-    def read_submenu(db: Session, menu_id: str, submenu_id: str):
+    def read_submenu(db: Session, menu_id: str, submenu_id: str) -> SubMenuModel:
 
         cache_key = f'submenu-{menu_id}-{submenu_id}'
 
@@ -76,7 +77,7 @@ class SubMenuService:
         return submenu
 
     @staticmethod
-    def update_submenu(db: Session, menu_id: str, submenu_id: str, submenu: SubMenuCreate):
+    def update_submenu(db: Session, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
         updated_submenu = SubMenuRepository.update_submenu(db, menu_id, submenu_id, submenu)
         cache_key_list = f'submenus-{menu_id}-0-100'
         invalidate_cache(cache_key_list)
@@ -92,7 +93,7 @@ class SubMenuService:
         return updated_submenu
 
     @staticmethod
-    def delete_submenu(db: Session, menu_id: str, submenu_id: str):
+    def delete_submenu(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
         deleted_submenu = SubMenuRepository.delete_submenu(db, menu_id, submenu_id)
 
         cache_key_single = f'submenu-{menu_id}-{submenu_id}'
@@ -107,7 +108,7 @@ class SubMenuService:
         return deleted_submenu
 
     @staticmethod
-    def delete_all_submenus(db: Session, menu_id: str):
+    def delete_all_submenus(db: Session, menu_id: str) -> dict[str, str]:
         deleted_submenus = SubMenuRepository.delete_all_submenus(db, menu_id)
 
         cache_key_list = f'submenus-{menu_id}-0-100'

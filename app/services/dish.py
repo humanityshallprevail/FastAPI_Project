@@ -3,6 +3,7 @@ import json
 from sqlalchemy.orm import Session
 
 from app.cache_manager import get_from_cache, invalidate_cache, set_in_cache
+from app.model.models import Dish as DishModel
 from app.repository.dish import DishRepository
 from app.schema.schemas import DishCreate
 
@@ -10,7 +11,7 @@ from app.schema.schemas import DishCreate
 class DishService:
 
     @staticmethod
-    def create_dish(db: Session, menu_id: str, submenu_id: str, dish: DishCreate):
+    def create_dish(db: Session, menu_id: str, submenu_id: str, dish: DishCreate) -> DishModel:
         new_dish = DishRepository.create_dish(db, menu_id, submenu_id, dish)
 
         cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
@@ -19,7 +20,7 @@ class DishService:
         return new_dish
 
     @staticmethod
-    def read_dishes(db: Session, menu_id: str, submenu_id: str, skip: int = 0, limit: int = 100):
+    def read_dishes(db: Session, menu_id: str, submenu_id: str, skip: int = 0, limit: int = 100) -> list[DishModel]:
         cache_key = f'dishes-{menu_id}-{submenu_id}-{skip}-{limit}'
 
         cached_dishes = get_from_cache(cache_key)
@@ -43,7 +44,7 @@ class DishService:
             return dishes
 
     @staticmethod
-    def read_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str):
+    def read_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str) -> DishModel:
         cache_key = f'dish-{menu_id}-{submenu_id}-{dish_id}'
 
         cached_dish = get_from_cache(cache_key)
@@ -64,7 +65,7 @@ class DishService:
             return dish
 
     @staticmethod
-    def update_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str, dish: DishCreate):
+    def update_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str, dish: DishCreate) -> DishModel:
         updated_dish = DishRepository.update_dish(db, menu_id, submenu_id, dish_id, dish)
 
         cache_key = f'dish-{menu_id}-{submenu_id}-{dish_id}'
@@ -75,7 +76,7 @@ class DishService:
         return updated_dish
 
     @staticmethod
-    def delete_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str):
+    def delete_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str) -> dict[str, str]:
         deleted_dish = DishRepository.delete_dish(db, menu_id, submenu_id, dish_id)
         cache_key = f'dish-{menu_id}-{submenu_id}-{dish_id}'
         invalidate_cache(cache_key)
@@ -85,7 +86,7 @@ class DishService:
         return deleted_dish
 
     @staticmethod
-    def delete_all_dishes(db: Session, menu_id: str, submenu_id: str):
+    def delete_all_dishes(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
         deleted_dishes = DishRepository.delete_all_dishes(db, menu_id, submenu_id)
 
         cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
