@@ -9,12 +9,12 @@ r = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=RE
 
 def get_from_cache(key):
     value = r.get(key)
-    logging.debug(f'Getting from cache for key {key}: {value}')  # Debugging line
+    logging.debug(f'Getting from cache for key {key}: {value}')
     return value
 
 
 def set_in_cache(key, value, expiration_time=3600):
-    logging.debug(f'Setting cache for key {key}: {value}')  # Debugging line
+    logging.debug(f'Setting cache for key {key}: {value}')
     r.setex(key, expiration_time, value)
 
 
