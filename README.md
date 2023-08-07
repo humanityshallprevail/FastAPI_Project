@@ -2,7 +2,17 @@
 
 ## Brief Description
 A sample FastAPI application that uses PostgreSQL for data storage. The application and the database are each containerized with Podman.
-# INFO FOR SUPERVISORS - RESULTS OF THE TESTS ARE IN JSON FILE
+# What's new:
+
+1. Layers have been added: Business logic and queries to the DataBase are in different layers now.
+2. Implemented Redis Caching: Integrated Redis into the project to cache menus, submenus, and dishes to optimize data retrieval.
+Cache Configuration: You can configure the Redis connection in the config.py file.
+Testing was performed manually through a sequence of CRUD operations, and the cached data was verified using Redis commands such as KEYS * and GET. Automated tests will be added in the upcoming versions
+3. Pre-Commit for Code Styling: Implemented a pre-commit hook to ensure code consistency with flake8, PEP 8, and other coding standards. Configuration for the pre-commit hook is available in the .pre-commit-config.yaml file.
+4. Custom Reverse Function: Implemented a custom reverse function named reverse_url as an alternative to Django's reverse function for URL reversing.
+This function is used to construct URLs for the given view and parameters, ensuring flexibility and compatibility with the project's routing structure.
+You can find this custom function in working directory (url_reverser.py)
+5. OpenAPI Specification: Integrated OpenAPI specification to provide a standardized interface for the RESTful API.
 ## Prerequisites
 - Python 3.8 or later
 - Podman
@@ -42,6 +52,10 @@ pip install -r requirements.txt
 DB_USER=<Your Database User>
 DB_PASSWORD=<Your Database Password>
 DB_NAME=<Your Database Name>
+
+TEST_DB_USER=<Your Database User>
+TEST_DB_PASSWORD=<Your Database Password>
+TEST_DB_NAME=<Your Database Name>
 ```
 
 Remember to replace `<Your Database User>`, `<Your Database Password>`, and `<Your Database Name>` with your actual database credentials.
@@ -51,16 +65,27 @@ Remember to replace `<Your Database User>`, `<Your Database Password>`, and `<Yo
 1. Build and start the containers:
 
 ```bash
-podman-compose up
+podman-compose build
+
+```
+
+Start docker in the background via
+
+```bash
+podman-compose up -d
 ```
 
 2. Navigate to `http://localhost:8000` in your web browser to interact with the FastAPI application.
 
 # Tests
 
-In our project, we've implemented various tests to ensure the proper functioning of our application. These tests can be found in the `test_api.py` file, and are run automatically within a container when the application is started.
+In our project, we've implemented various tests to ensure the proper functioning of our application. These tests can be found in the `test_api.py` file. To run those you should:
 
-## Test Coverage
+```bash
+podman-compose up -d
+```
+when docker is running on the background
+## Test Coverage (Test for analog of reverse() carried out as well)
 
 1. **Test to create a new menu**: This test sends a POST request to the `/api/v1/menus` endpoint with a new menu in the request body. It verifies the response status is 201 (Created) and that the response body contains the ID of the newly created menu.
 
@@ -90,13 +115,8 @@ In our project, we've implemented various tests to ensure the proper functioning
 
 ## Running the Tests
 
-The tests are run in a container which is started by the command `podman-compose up`. This means that no additional steps are necessary to run the tests - they will automatically be run when the application is started.
+The tests are run in a container which is started by the command `podman-compose run test pytest`.
 
-## Test Start Time
-
-Our tests are configured to start 30 seconds after the application is up and running. This delay is to allow sufficient time for the application and database to fully initialize and be ready to accept connections and requests.
-
-This is achieved by using the command `sleep 30 && pytest` in our Docker Compose file for the `test` service.
 
 ## Test Output
 
@@ -106,16 +126,16 @@ After running the tests, you should see an output in your console similar to thi
 ============================= test session starts ==============================
 platform linux -- Python 3.11.4, pytest-6.2.5, py-1.11.0, pluggy-1.0.0
 rootdir: /app
-collected 1 item                                                               
+collected 2 item
 
 test_api.py .                                                            [100%]
 
-============================== 1 passed in 0.12s ===============================
+============================== 2 passed in 0.12s ===============================
 ```
 ## Common Issues
 
 ### PostgreSQL Already Running
-If you encounter an error message like `rootlessport listen tcp 0.0.0.0:5432: bind: address already in use`, this means that PostgreSQL is already running on your machine and occupying port 5432. 
+If you encounter an error message like `rootlessport listen tcp 0.0.0.0:5432: bind: address already in use`, this means that PostgreSQL is already running on your machine and occupying port 5432.
 
 You can stop it by running:
 
@@ -129,5 +149,3 @@ Solution:
 Sometimes, Docker/Podman services can fail to start if they're not ready yet or if there's a transient error. If you encounter this issue, simply try running podman-compose down followed by podman-compose up again.
 
 Always ensure that you have the latest versions of Podman/Docker and Podman-compose/Docker-compose installed on your system, as this can help avoid some common issues.
-
-
