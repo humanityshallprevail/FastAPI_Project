@@ -8,7 +8,7 @@ A sample FastAPI application that uses PostgreSQL for data storage. The applicat
 
 1. **Layers have been added**: Business logic and queries to the DataBase are in different layers now.
 
-2. **Implemented Redis Caching**: Integrated Redis into the project to cache menus, submenus, and dishes to optimize data retrieval.The caching process is carried out in the `services` direction. 
+2. **Implemented Redis Caching**: Integrated Redis into the project to cache menus, submenus, and dishes to optimize data retrieval.The caching process is carried out in the `services` direction.
 Cache Configuration: You can configure the Redis connection in the config.py file.
 
 3. **Pre-Commit for Code Styling**: Implemented a pre-commit hook to ensure code consistency with flake8, PEP 8, and other coding standards. Configuration for the pre-commit hook is available in the .pre-commit-config.yaml file.
