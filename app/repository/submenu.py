@@ -22,8 +22,22 @@ class SubMenuRepository:
 
     @staticmethod
     def read_submenus(db: Session, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
-        submenus = db.query(SubMenu).filter(SubMenu.menu_id == menu_id).offset(skip).limit(limit).all()
-        return submenus
+        dishes_subquery = db.query(
+            Dish.submenu_id,
+            func.count(Dish.id).label('dishes_count')
+        ).group_by(Dish.submenu_id).subquery()
+
+        submenus = db.query(
+            SubMenu,
+            dishes_subquery.c.dishes_count
+        ).outerjoin(
+            dishes_subquery, dishes_subquery.c.submenu_id == SubMenu.id
+        ).filter(SubMenu.menu_id == menu_id).offset(skip).limit(limit).all()
+
+        for submenu, dishes_count in submenus:
+            submenu.dishes_count = dishes_count if dishes_count else 0
+
+        return [submenu for submenu, _ in submenus]
 
     @staticmethod
     def read_submenu(db: Session, menu_id: str, submenu_id: str) -> SubMenuModel:
@@ -68,7 +82,11 @@ class SubMenuRepository:
 
     @staticmethod
     def delete_all_submenus(db: Session, menu_id: str) -> dict[str, str]:
-        db.query(Dish).filter(Dish.menu_id == menu_id).delete()
+
+        submenus = db.query(SubMenu.id).filter(SubMenu.menu_id == menu_id).all()
+        submenu_ids = [submenu.id for submenu in submenus]
+        db.query(Dish).filter(Dish.submenu_id.in_(submenu_ids)).delete(synchronize_session='fetch')
         db.query(SubMenu).filter(SubMenu.menu_id == menu_id).delete()
         db.commit()
+
         return {'message': 'All submenus and dishes for the given menu have been deleted'}

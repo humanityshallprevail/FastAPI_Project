@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.model.models import Dish
+from app.model.models import Dish, SubMenu
 from app.schema.schemas import DishCreate, DishModel
 
 
@@ -52,6 +52,12 @@ class DishRepository:
 
     @staticmethod
     def delete_all_dishes(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
-        db.query(Dish).filter(Dish.submenu_id == submenu_id).delete()
+
+        db_submenu = db.query(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).first()
+        if not db_submenu:
+            raise HTTPException(status_code=404, detail='submenu not found')
+
+        db.query(Dish).filter(Dish.submenu_id == submenu_id).delete(synchronize_session='fetch')
         db.commit()
+
         return {'message': 'All dishes for the given submenu have been deleted'}

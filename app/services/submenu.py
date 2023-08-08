@@ -15,8 +15,16 @@ class SubMenuService:
     def create_submenu(db: Session, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
 
         new_submenu = SubMenuRepository.create_submenu(db, menu_id, submenu)
+
         cache_key_list = f'submenus-{menu_id}-0-100'
         invalidate_cache(cache_key_list)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
+
+        cache_key_all = 'menus-0-100'
+        invalidate_cache(cache_key_all)
+
         return new_submenu
 
     @staticmethod
@@ -38,6 +46,7 @@ class SubMenuService:
                 'id': submenu.id,
                 'title': submenu.title,
                 'description': submenu.description,
+                'dishes_count': submenu.dishes_count
             }
             for submenu in submenus
         ]
@@ -78,9 +87,15 @@ class SubMenuService:
 
     @staticmethod
     def update_submenu(db: Session, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
+
         updated_submenu = SubMenuRepository.update_submenu(db, menu_id, submenu_id, submenu)
+
         cache_key_list = f'submenus-{menu_id}-0-100'
         invalidate_cache(cache_key_list)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
+
         serialized_submenu = {
             'id': updated_submenu.id,
             'title': updated_submenu.title,
@@ -105,6 +120,9 @@ class SubMenuService:
         cache_key_menu = f'menus-{menu_id}'
         invalidate_cache(cache_key_menu)
 
+        cache_key_menu_all = 'menus-0-100'
+        invalidate_cache(cache_key_menu_all)
+
         return deleted_submenu
 
     @staticmethod
@@ -113,5 +131,8 @@ class SubMenuService:
 
         cache_key_list = f'submenus-{menu_id}-0-100'
         invalidate_cache(cache_key_list)
+
+        cache_key_menu_all = 'menus-0-100'
+        invalidate_cache(cache_key_menu_all)
 
         return deleted_submenus

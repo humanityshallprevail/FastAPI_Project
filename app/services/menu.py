@@ -113,6 +113,7 @@ class MenuService:
 
     @staticmethod
     def delete_all_menus(db: Session) -> dict[str, str]:
+
         deleted_menus = MenuRepository.delete_all_menus(db)
 
         invalidate_cache('menus-0-100')

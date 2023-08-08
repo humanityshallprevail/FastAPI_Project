@@ -12,10 +12,23 @@ class DishService:
 
     @staticmethod
     def create_dish(db: Session, menu_id: str, submenu_id: str, dish: DishCreate) -> DishModel:
+
         new_dish = DishRepository.create_dish(db, menu_id, submenu_id, dish)
 
         cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
         invalidate_cache(cache_key)
+
+        cache_key_submenu = f'submenu-{menu_id}-{submenu_id}'
+        invalidate_cache(cache_key_submenu)
+
+        cache_key_submenus_list = f'submenus-{menu_id}-0-100'
+        invalidate_cache(cache_key_submenus_list)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
+
+        cache_key_menu_all = 'menus-0-100'
+        invalidate_cache(cache_key_menu_all)
 
         return new_dish
 
@@ -66,30 +79,63 @@ class DishService:
 
     @staticmethod
     def update_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str, dish: DishCreate) -> DishModel:
+
         updated_dish = DishRepository.update_dish(db, menu_id, submenu_id, dish_id, dish)
 
         cache_key = f'dish-{menu_id}-{submenu_id}-{dish_id}'
         invalidate_cache(cache_key)
+
         cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
         invalidate_cache(cache_key)
+
+        cache_key_submenu = f'submenu-{menu_id}-{submenu_id}'
+        invalidate_cache(cache_key_submenu)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
 
         return updated_dish
 
     @staticmethod
     def delete_dish(db: Session, menu_id: str, submenu_id: str, dish_id: str) -> dict[str, str]:
+
         deleted_dish = DishRepository.delete_dish(db, menu_id, submenu_id, dish_id)
-        cache_key = f'dish-{menu_id}-{submenu_id}-{dish_id}'
-        invalidate_cache(cache_key)
-        cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
-        invalidate_cache(cache_key)
+
+        cache_key_dish = f'dish-{menu_id}-{submenu_id}-{dish_id}'
+        invalidate_cache(cache_key_dish)
+
+        cache_key_dishes = f'dishes-{menu_id}-{submenu_id}-0-100'
+        invalidate_cache(cache_key_dishes)
+
+        cache_key_submenu = f'submenu-{menu_id}-{submenu_id}'
+        invalidate_cache(cache_key_submenu)
+
+        cache_key_submenus = f'submenus-{menu_id}-0-100'
+        invalidate_cache(cache_key_submenus)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
+
+        cache_key_menu_all = 'menus-0-100'
+        invalidate_cache(cache_key_menu_all)
 
         return deleted_dish
 
     @staticmethod
     def delete_all_dishes(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
+
         deleted_dishes = DishRepository.delete_all_dishes(db, menu_id, submenu_id)
 
-        cache_key = f'dishes-{menu_id}-{submenu_id}-0-100'
-        invalidate_cache(cache_key)
+        cache_key_dishes = f'dishes-{menu_id}-{submenu_id}-0-100'
+        invalidate_cache(cache_key_dishes)
+
+        cache_key_submenu = f'submenus-{menu_id}-0-100'
+        invalidate_cache(cache_key_submenu)
+
+        cache_key_menu = f'menus-{menu_id}'
+        invalidate_cache(cache_key_menu)
+
+        cache_key_menu_all = 'menus-0-100'
+        invalidate_cache(cache_key_menu_all)
 
         return deleted_dishes

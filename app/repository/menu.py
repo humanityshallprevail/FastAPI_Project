@@ -21,18 +21,24 @@ class MenuRepository:
     @staticmethod
     def read_menus(db: Session, skip: int = 0, limit: int = 100) -> list[MenuModel]:
 
-        subquery = db.query(
+        submenus_subquery = db.query(
             SubMenu.menu_id,
-            func.count(SubMenu.id).label('submenus_count'),
+            func.count(SubMenu.id).label('submenus_count')
+        ).group_by(SubMenu.menu_id).subquery()
+
+        dishes_subquery = db.query(
+            SubMenu.menu_id,
             func.count(Dish.id).label('dishes_count')
         ).join(Dish, Dish.submenu_id == SubMenu.id).group_by(SubMenu.menu_id).subquery()
 
         menus = db.query(
             Menu,
-            subquery.c.submenus_count,
-            subquery.c.dishes_count
+            submenus_subquery.c.submenus_count,
+            dishes_subquery.c.dishes_count
         ).outerjoin(
-            subquery, subquery.c.menu_id == Menu.id
+            submenus_subquery, submenus_subquery.c.menu_id == Menu.id
+        ).outerjoin(
+            dishes_subquery, dishes_subquery.c.menu_id == Menu.id
         ).offset(skip).limit(limit).all()
 
         for menu, submenus_count, dishes_count in menus:
