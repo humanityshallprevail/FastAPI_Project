@@ -1,7 +1,7 @@
 import json
 import logging
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cache_manager import get_from_cache, invalidate_cache, set_in_cache
 from app.model.models import SubMenu as SubMenuModel
@@ -12,26 +12,26 @@ from app.schema.schemas import SubMenuCreate
 class SubMenuService:
 
     @staticmethod
-    def create_submenu(db: Session, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
+    async def create_submenu(db: AsyncSession, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
 
-        new_submenu = SubMenuRepository.create_submenu(db, menu_id, submenu)
+        new_submenu = await SubMenuRepository.create_submenu(db, menu_id, submenu)
 
         cache_key_list = f'submenus-{menu_id}-0-100'
-        invalidate_cache(cache_key_list)
+        await invalidate_cache(cache_key_list)
 
         cache_key_menu = f'menus-{menu_id}'
-        invalidate_cache(cache_key_menu)
+        await invalidate_cache(cache_key_menu)
 
         cache_key_all = 'menus-0-100'
-        invalidate_cache(cache_key_all)
+        await invalidate_cache(cache_key_all)
 
         return new_submenu
 
     @staticmethod
-    def read_submenus(db: Session, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
+    async def read_submenus(db: AsyncSession, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
         cache_key = f'submenus-{menu_id}-{skip}-{limit}'
 
-        cached_submenus = get_from_cache(cache_key)
+        cached_submenus = await get_from_cache(cache_key)
 
         if cached_submenus:
             logging.debug(f"Cache hit for key {cache_key}: {cached_submenus.decode('utf-8')}")
@@ -39,7 +39,7 @@ class SubMenuService:
         else:
             logging.debug(f'Cache miss for key {cache_key}')
 
-        submenus = SubMenuRepository.read_submenus(db, menu_id, skip, limit)
+        submenus = await SubMenuRepository.read_submenus(db, menu_id, skip, limit)
 
         serialized_submenus = [
             {
@@ -53,16 +53,16 @@ class SubMenuService:
 
         json_submenus = json.dumps(serialized_submenus)
         logging.debug(f'Serialized submenu: {json_submenus}')
-        set_in_cache(cache_key, json_submenus)
+        await set_in_cache(cache_key, json_submenus)
 
         return submenus
 
     @staticmethod
-    def read_submenu(db: Session, menu_id: str, submenu_id: str) -> SubMenuModel:
+    async def read_submenu(db: AsyncSession, menu_id: str, submenu_id: str) -> SubMenuModel:
 
         cache_key = f'submenu-{menu_id}-{submenu_id}'
 
-        cached_submenu = get_from_cache(cache_key)
+        cached_submenu = await get_from_cache(cache_key)
 
         if cached_submenu:
             logging.debug(f"Cache hit for key {cache_key}: {cached_submenu.decode('utf-8')}")
@@ -70,7 +70,7 @@ class SubMenuService:
         else:
             logging.debug(f'Cache miss for key {cache_key}')
 
-        submenu = SubMenuRepository.read_submenu(db, menu_id, submenu_id)
+        submenu = await SubMenuRepository.read_submenu(db, menu_id, submenu_id)
 
         serialized_submenu = {
             'id': submenu.id,
@@ -81,20 +81,20 @@ class SubMenuService:
 
         json_submenu = json.dumps(serialized_submenu)
         logging.debug(f'Serialized submenu: {json_submenu}')
-        set_in_cache(cache_key, json_submenu)
+        await set_in_cache(cache_key, json_submenu)
 
         return submenu
 
     @staticmethod
-    def update_submenu(db: Session, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
+    async def update_submenu(db: AsyncSession, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
 
-        updated_submenu = SubMenuRepository.update_submenu(db, menu_id, submenu_id, submenu)
+        updated_submenu = await SubMenuRepository.update_submenu(db, menu_id, submenu_id, submenu)
 
         cache_key_list = f'submenus-{menu_id}-0-100'
-        invalidate_cache(cache_key_list)
+        await invalidate_cache(cache_key_list)
 
         cache_key_menu = f'menus-{menu_id}'
-        invalidate_cache(cache_key_menu)
+        await invalidate_cache(cache_key_menu)
 
         serialized_submenu = {
             'id': updated_submenu.id,
@@ -103,36 +103,36 @@ class SubMenuService:
         }
         cache_key_single = f'submenu-{menu_id}-{submenu_id}'
         json_submenu = json.dumps(serialized_submenu)
-        set_in_cache(cache_key_single, json_submenu)
+        await set_in_cache(cache_key_single, json_submenu)
 
         return updated_submenu
 
     @staticmethod
-    def delete_submenu(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
-        deleted_submenu = SubMenuRepository.delete_submenu(db, menu_id, submenu_id)
+    async def delete_submenu(db: AsyncSession, menu_id: str, submenu_id: str) -> dict[str, str]:
+        deleted_submenu = await SubMenuRepository.delete_submenu(db, menu_id, submenu_id)
 
         cache_key_single = f'submenu-{menu_id}-{submenu_id}'
-        invalidate_cache(cache_key_single)
+        await invalidate_cache(cache_key_single)
 
         cache_key_list = f'submenus-{menu_id}-0-100'
-        invalidate_cache(cache_key_list)
+        await invalidate_cache(cache_key_list)
 
         cache_key_menu = f'menus-{menu_id}'
-        invalidate_cache(cache_key_menu)
+        await invalidate_cache(cache_key_menu)
 
         cache_key_menu_all = 'menus-0-100'
-        invalidate_cache(cache_key_menu_all)
+        await invalidate_cache(cache_key_menu_all)
 
         return deleted_submenu
 
     @staticmethod
-    def delete_all_submenus(db: Session, menu_id: str) -> dict[str, str]:
-        deleted_submenus = SubMenuRepository.delete_all_submenus(db, menu_id)
+    async def delete_all_submenus(db: AsyncSession, menu_id: str) -> dict[str, str]:
+        deleted_submenus = await SubMenuRepository.delete_all_submenus(db, menu_id)
 
         cache_key_list = f'submenus-{menu_id}-0-100'
-        invalidate_cache(cache_key_list)
+        await invalidate_cache(cache_key_list)
 
         cache_key_menu_all = 'menus-0-100'
-        invalidate_cache(cache_key_menu_all)
+        await invalidate_cache(cache_key_menu_all)
 
         return deleted_submenus

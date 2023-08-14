@@ -6,17 +6,31 @@ A sample FastAPI application that uses PostgreSQL for data storage. The applicat
 
 # What's new:
 
-1. **Layers have been added**: Business logic and queries to the DataBase are in different layers now.
+1. **The app is async now**
 
-2. **Implemented Redis Caching**: Integrated Redis into the project to cache menus, submenus, and dishes to optimize data retrieval.The caching process is carried out in the `services` direction.
-Cache Configuration: You can configure the Redis connection in the config.py file.
+2. **Background task was added with Celery and RabbitMQ**
 
-3. **Pre-Commit for Code Styling**: Implemented a pre-commit hook to ensure code consistency with flake8, PEP 8, and other coding standards. Configuration for the pre-commit hook is available in the .pre-commit-config.yaml file.
+3. **End-point GET for all the data has been added**
 
-4. **Custom Reverse Function**: Implemented a custom reverse function named reverse_url as an alternative to Django's reverse function for URL reversing.
-This function is used to construct URLs for the given view and parameters, ensuring flexibility and compatibility with the project's routing structure.
+4. **Background cache validation has been added**:
 
-5. **OpenAPI Specification**: Integrated OpenAPI specification to provide a standardized interface for the RESTful API.
+5. **To the excel file discount is added in G column**:
+
+
+## Manipulations with Excel file:
+
+Excel file is stored in working directory/admin. You should open it and make manipulations such as deleting data, updating and inserting. Make sure that the id is in UUID format. You can see the data changed by ususal GET requests. Espesially /api/v1/menu - the command will return all the data in one list/
+
+NOTE: When Celery getting started (withtin 30 seconds after the app gets started) every 15 seconds, the only way to manipulate with data is through excel - all the elemets created via usual requests will be deleted. If you want to switch back to requests, you should stop celery by running:
+
+```bash
+podman-compose stop celery_worker
+```
+When you need celery back again use:
+
+```bash
+podman-compose start celery_worker
+```
 
 ## Prerequisites
 - Python 3.8 or later

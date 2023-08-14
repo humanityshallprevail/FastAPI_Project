@@ -5,6 +5,8 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip list
+RUN pip install redis==4.6.0
+RUN pip show redis
 
 COPY . .
 

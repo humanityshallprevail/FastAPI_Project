@@ -1,6 +1,6 @@
 from fastapi import HTTPException
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import delete, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.models import Dish, Menu, SubMenu
 from app.schema.schemas import SubMenu as SubMenuModel
@@ -10,83 +10,94 @@ from app.schema.schemas import SubMenuCreate
 class SubMenuRepository:
 
     @staticmethod
-    def create_submenu(db: Session, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
-        db_menu = db.query(Menu).filter(Menu.id == menu_id).first()
+    async def create_submenu(db: AsyncSession, menu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
+        result = await db.execute(select(Menu).filter(Menu.id == menu_id))
+        db_menu = result.scalar_one_or_none()
         if db_menu is None:
             raise HTTPException(status_code=404, detail='Menu not found')
         db_submenu = SubMenu(title=submenu.title, menu_id=menu_id, description=submenu.description)
         db.add(db_submenu)
-        db.commit()
-        db.refresh(db_submenu)
+        await db.commit()
+        await db.refresh(db_submenu)
         return db_submenu
 
     @staticmethod
-    def read_submenus(db: Session, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
-        dishes_subquery = db.query(
+    async def read_submenus(db: AsyncSession, menu_id: str, skip: int = 0, limit: int = 100) -> list[SubMenuModel]:
+        dishes_subquery = select(
             Dish.submenu_id,
             func.count(Dish.id).label('dishes_count')
         ).group_by(Dish.submenu_id).subquery()
 
-        submenus = db.query(
+        stmt = select(
             SubMenu,
             dishes_subquery.c.dishes_count
         ).outerjoin(
             dishes_subquery, dishes_subquery.c.submenu_id == SubMenu.id
-        ).filter(SubMenu.menu_id == menu_id).offset(skip).limit(limit).all()
+        ).filter(SubMenu.menu_id == menu_id).offset(skip).limit(limit)
 
-        for submenu, dishes_count in submenus:
+        result = await db.execute(stmt)
+        submenus_result = result.all()
+
+        submenus = []
+        for submenu, dishes_count in submenus_result:
             submenu.dishes_count = dishes_count if dishes_count else 0
+            submenus.append(submenu)
 
-        return [submenu for submenu, _ in submenus]
+        return submenus
 
     @staticmethod
-    def read_submenu(db: Session, menu_id: str, submenu_id: str) -> SubMenuModel:
-        dishes_subquery = db.query(
+    async def read_submenu(db: AsyncSession, menu_id: str, submenu_id: str) -> SubMenuModel:
+        dishes_subquery = select(
             Dish.submenu_id,
             func.count(Dish.id).label('dishes_count')
         ).group_by(Dish.submenu_id).subquery()
 
-        result = db.query(
+        stmt = select(
             SubMenu,
             dishes_subquery.c.dishes_count
         ).outerjoin(
             dishes_subquery, dishes_subquery.c.submenu_id == SubMenu.id
-        ).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).first()
-        if not result:
+        ).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id)
+
+        result = await db.execute(stmt)
+        result_row = result.first()
+
+        if not result_row:
             raise HTTPException(status_code=404, detail='submenu not found')
-        submenu, dishes_count = result
+
+        submenu, dishes_count = result_row
         submenu.dishes_count = dishes_count or 0
 
         return submenu
 
     @staticmethod
-    def update_submenu(db: Session, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
-        db_submenu = db.query(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).first()
+    async def update_submenu(db: AsyncSession, menu_id: str, submenu_id: str, submenu: SubMenuCreate) -> SubMenuModel:
+        result = await db.execute(select(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
+        db_submenu = result.scalar_one_or_none()
         if not db_submenu:
             raise HTTPException(status_code=404, detail='submenu not found')
         db_submenu.title = submenu.title
         db_submenu.description = submenu.description
-        db.commit()
-        db.refresh(db_submenu)
+        await db.commit()
+        await db.refresh(db_submenu)
         return db_submenu
 
     @staticmethod
-    def delete_submenu(db: Session, menu_id: str, submenu_id: str) -> dict[str, str]:
-        db_submenu = db.query(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id).first()
+    async def delete_submenu(db: AsyncSession, menu_id: str, submenu_id: str) -> dict[str, str]:
+        result = await db.execute(select(SubMenu).filter(SubMenu.id == submenu_id, SubMenu.menu_id == menu_id))
+        db_submenu = result.scalar_one_or_none()
         if not db_submenu:
             raise HTTPException(status_code=404, detail='submenu not found')
-        db.query(Dish).filter(Dish.submenu_id == submenu_id).delete(synchronize_session='fetch')
-        db.delete(db_submenu)
-        db.commit()
+        await db.execute(delete(Dish).filter(Dish.submenu_id == submenu_id))
+        await db.delete(db_submenu)
+        await db.commit()
         return {'message': 'submenu deleted'}
 
     @staticmethod
-    def delete_all_submenus(db: Session, menu_id: str) -> dict[str, str]:
-
-        submenus = db.query(SubMenu.id).filter(SubMenu.menu_id == menu_id).all()
-        submenu_ids = [submenu.id for submenu in submenus]
-        db.query(Dish).filter(Dish.submenu_id.in_(submenu_ids)).delete(synchronize_session='fetch')
-        db.query(SubMenu).filter(SubMenu.menu_id == menu_id).delete()
-        db.commit()
-
+    async def delete_all_submenus(db: AsyncSession, menu_id: str) -> dict[str, str]:
+        submenus_result = await db.execute(select(SubMenu.id).filter(SubMenu.menu_id == menu_id))
+        submenu_ids = [submenu.id for submenu in submenus_result.scalars().all()]
+        await db.execute(delete(Dish).filter(Dish.submenu_id.in_(submenu_ids)))
+        await db.execute(delete(SubMenu).filter(SubMenu.menu_id == menu_id))
+        await db.commit()
         return {'message': 'All submenus and dishes for the given menu have been deleted'}

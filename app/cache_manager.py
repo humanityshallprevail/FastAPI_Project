@@ -1,22 +1,31 @@
-import logging
-
-import redis  # type: ignore[import]
+from redis import asyncio as aioredis  # type: ignore[import]
 
 from config import REDIS_DB, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT
 
-r = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, password=REDIS_PASSWORD)
+REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+
+if REDIS_PASSWORD:
+    REDIS_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
 
 
-def get_from_cache(key) -> bytes | None:
-    value = r.get(key)
-    logging.debug(f'Getting from cache for key {key}: {value}')
+async def get_redis_connection():
+    return await aioredis.from_url(REDIS_URL)
+
+
+async def get_from_cache(key) -> bytes | None:
+    connection = await get_redis_connection()
+    value = await connection.get(key)
+    await connection.close()
     return value
 
 
-def set_in_cache(key, value, expiration_time=3600) -> None:
-    logging.debug(f'Setting cache for key {key}: {value}')
-    r.setex(key, expiration_time, value)
+async def set_in_cache(key, value, expiration_time=3600) -> None:
+    connection = await get_redis_connection()
+    await connection.setex(key, expiration_time, value)
+    await connection.close()
 
 
-def invalidate_cache(key) -> None:
-    r.delete(key)
+async def invalidate_cache(key) -> None:
+    connection = await get_redis_connection()
+    await connection.delete(key)
+    await connection.close()

@@ -20,9 +20,9 @@ services:
       - db
       - redis
     environment:
-      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
 
-  test_db:  # New test database service
+  test_db:
     image: docker.io/library/postgres:15.1-alpine
     environment:
       POSTGRES_USER: ${TEST_DB_USER}
@@ -38,9 +38,41 @@ services:
       - test_db
       - redis
     environment:
-      DATABASE_URL: postgresql://${TEST_DB_USER}:${TEST_DB_PASSWORD}@test_db/${TEST_DB_NAME}
+      DATABASE_URL: postgresql+asyncpg://${TEST_DB_USER}:${TEST_DB_PASSWORD}@test_db/${TEST_DB_NAME}
 
   redis:
-    image: docker.io/library/redis:latest
+    image: docker.io/library/redis
     ports:
       - 6379:6379
+
+  rabbitmq:
+    image: docker.io/library/rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  celery_worker:
+    build: .
+    command: ["celery", "-A", "app.celery_worker", "worker", "--loglevel=info"]
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+
+  celery_beat:
+    build: .
+    command: ["celery", "-A", "app.celery_worker", "beat", "--loglevel=info"]
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - db
+      - redis
+      - rabbitmq
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
