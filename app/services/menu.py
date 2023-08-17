@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 class MenuService:
 
     @staticmethod
-    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100):
+    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[dict]:
         menus = await MenuRepository.read_all_menus(db, skip, limit)
         return menus
 

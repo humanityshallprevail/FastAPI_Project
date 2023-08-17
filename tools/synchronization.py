@@ -8,7 +8,7 @@ from app.model.models import Dish, Menu, SubMenu
 logging.basicConfig(level=logging.DEBUG)
 
 
-async def synchronize_menus(session, menus):
+async def synchronize_menus(session, menus) -> list[str]:
 
     invalidated_keys = []
 
@@ -16,8 +16,8 @@ async def synchronize_menus(session, menus):
 
     existing_menus = {menu.id: menu for menu in existing_menus_query.scalars().all()}
 
-    remaining_submenus_to_delete = []
-    remaining_dishes_to_delete = []
+    remaining_submenus_to_delete: list[SubMenu] = []
+    remaining_dishes_to_delete: list[Dish] = []
     for menu in menus:
         current_id = menu['id']
         existing_menu = existing_menus.get(current_id)
@@ -56,14 +56,14 @@ async def synchronize_menus(session, menus):
                             existing_dish.title = dish['title']
                             existing_dish.description = dish['description']
                             if dish['discount'] is not None:
-                                existing_dish.price = str(float(dish['price']) * (1 - dish['discount']))
+                                existing_dish.price = str(float(dish['price']) * (1 - float(dish['discount'])))
                             else:
                                 existing_dish.price = dish['price']
                             await invalidate_cache(f'dishes-{current_id}-{current_id_submenu}-{current_dish_id}')
                             del existing_dishes[dish['id']]
                         else:
                             if dish['discount'] is not None:
-                                new_price = str(float(dish['price']) * (1 - dish['discount']))
+                                new_price = str(float(dish['price']) * (1 - float(dish['discount'])))
                             else:
                                 new_price = dish['price']
                             new_dish = Dish(id=dish['id'], title=dish['title'], submenu_id=current_id_submenu,

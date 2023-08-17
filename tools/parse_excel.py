@@ -3,12 +3,12 @@ import json
 from openpyxl import load_workbook
 
 
-def write_to_json_file(data, file_path):
+def write_to_json_file(data, file_path) -> None:
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def parse_menu_excel(file_path):
+def parse_menu_excel(file_path) -> list[dict]:
     workbook = load_workbook(filename=file_path)
     sheet = workbook.active
 

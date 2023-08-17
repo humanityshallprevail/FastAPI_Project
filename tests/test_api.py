@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.mark.asyncio
-async def test_endpoint():
+async def test_endpoint() -> None:
     async with httpx.AsyncClient(app=app, base_url='http://localhost:8000') as client:
         reverser = URLReverser(app)
         url = reverser.reverse('get_item', item_id=42)
@@ -21,7 +21,7 @@ async def test_endpoint():
 
 
 @pytest.mark.asyncio
-async def test_crud_menu_and_submenus():
+async def test_crud_menu_and_submenus() -> None:
     async with httpx.AsyncClient(app=app, base_url='http://localhost:8000') as client:
         # Create menu
         test_menu = {'title': 'Test Menu', 'description': 'This is a test menu'}

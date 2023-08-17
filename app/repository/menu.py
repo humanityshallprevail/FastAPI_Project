@@ -10,7 +10,7 @@ from app.schema.schemas import MenuCreate
 class MenuRepository:
 
     @staticmethod
-    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100):
+    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[dict]:
 
         dishes_subquery = select(
             SubMenu.id.label('submenu_id'),

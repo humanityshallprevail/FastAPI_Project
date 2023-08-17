@@ -53,7 +53,7 @@ async def create_menu(menu: MenuCreate, db: AsyncSession = Depends(get_db)) -> M
 
 
 @app.get('/api/v1/menu')
-async def read_all_menus(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def read_all_menus(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[dict]:
 
     return await menu_service.read_all_menus(db, skip, limit)
 
