@@ -56,16 +56,16 @@ async def synchronize_menus(session, menus):
                             existing_dish.title = dish['title']
                             existing_dish.description = dish['description']
                             if dish['discount'] is not None:
-                                existing_dish.price = str(float(dish['price']) * dish['discount'])
+                                existing_dish.price = str(float(dish['price']) * (1 - dish['discount']))
                             else:
                                 existing_dish.price = dish['price']
                             await invalidate_cache(f'dishes-{current_id}-{current_id_submenu}-{current_dish_id}')
                             del existing_dishes[dish['id']]
                         else:
                             if dish['discount'] is not None:
-                                new_price = str(float(dish['price']) * dish['discount'])
+                                new_price = str(float(dish['price']) * (1 - dish['discount']))
                             else:
-                                new_price = dish['discount']
+                                new_price = dish['price']
                             new_dish = Dish(id=dish['id'], title=dish['title'], submenu_id=current_id_submenu,
                                             price=new_price, description=dish['description'])
                             session.add(new_dish)
