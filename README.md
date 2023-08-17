@@ -19,9 +19,9 @@ A sample FastAPI application that uses PostgreSQL for data storage. The applicat
 
 ## Manipulations with Excel file:
 
-Excel file is stored in working directory/admin. You should open it and make manipulations such as deleting data, updating and inserting. Make sure that the id is in UUID format. You can see the data changed by ususal GET requests. Espesially /api/v1/menu - the command will return all the data in one list/
+Excel file is stored in the working directory/admin. You should open it and make manipulations such as deleting data, updating and inserting. Make sure that the id is in UUID format. You can see the data changed by ususal GET requests. Espesially /api/v1/menu - the command will return all the data in one list.
 
-NOTE: When Celery getting started (withtin 30 seconds after the app gets started) every 15 seconds, the only way to manipulate with data is through excel - all the elemets created via usual requests will be deleted. If you want to switch back to requests, you should stop celery by running:
+NOTE: Celery getting started withtin 30 seconds after the app gets started and works every 15 seconds, the only way to manipulate with data is through excel - all the elements created via usual requests will be deleted. If you want to switch back to requests, you should stop celery by running:
 
 ```bash
 podman-compose stop celery_worker
@@ -31,6 +31,7 @@ When you need celery back again use:
 ```bash
 podman-compose start celery_worker
 ```
+Also make sure that the db is empty if you want to run tests.
 
 ## Prerequisites
 - Python 3.8 or later
