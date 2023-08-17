@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from app.model.base import Base
-from app.schema.schemas import DishCreate, DishModel
+from app.schema.schemas import CompleteMenu, DishCreate, DishModel
 from app.schema.schemas import Menu as MenuModel
 from app.schema.schemas import MenuCreate
 from app.schema.schemas import SubMenu as SubMenuModel
@@ -18,7 +18,7 @@ from db.database import SessionLocal, engine
 logging.basicConfig(level=logging.DEBUG)
 
 
-async def get_db():
+async def get_db() -> AsyncSession:
     async with SessionLocal() as session:
         yield session
 
@@ -53,7 +53,7 @@ async def create_menu(menu: MenuCreate, db: AsyncSession = Depends(get_db)) -> M
 
 
 @app.get('/api/v1/menu')
-async def read_all_menus(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[dict]:
+async def read_all_menus(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[CompleteMenu]:
 
     return await menu_service.read_all_menus(db, skip, limit)
 

@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.cache_manager import get_from_cache, invalidate_cache, set_in_cache
 from app.model.models import Menu as MenuModel
 from app.repository.menu import MenuRepository
-from app.schema.schemas import MenuCreate
+from app.schema.schemas import CompleteMenu, MenuCreate
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 class MenuService:
 
     @staticmethod
-    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[dict]:
+    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[CompleteMenu]:
         menus = await MenuRepository.read_all_menus(db, skip, limit)
         return menus
 

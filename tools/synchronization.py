@@ -1,6 +1,7 @@
 import logging
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.cache_manager import invalidate_cache
 from app.model.models import Dish, Menu, SubMenu
@@ -8,7 +9,7 @@ from app.model.models import Dish, Menu, SubMenu
 logging.basicConfig(level=logging.DEBUG)
 
 
-async def synchronize_menus(session, menus) -> list[str]:
+async def synchronize_menus(session: AsyncSession, menus: list[dict]) -> list[str]:
 
     invalidated_keys = []
 
@@ -56,14 +57,15 @@ async def synchronize_menus(session, menus) -> list[str]:
                             existing_dish.title = dish['title']
                             existing_dish.description = dish['description']
                             if dish['discount'] is not None:
-                                existing_dish.price = str(float(dish['price']) * (1 - float(dish['discount'])))
+                                existing_dish.price = str(
+                                    round(float(dish['price']) * (1 - float(dish['discount'])), 2))
                             else:
                                 existing_dish.price = dish['price']
                             await invalidate_cache(f'dishes-{current_id}-{current_id_submenu}-{current_dish_id}')
                             del existing_dishes[dish['id']]
                         else:
                             if dish['discount'] is not None:
-                                new_price = str(float(dish['price']) * (1 - float(dish['discount'])))
+                                new_price = str(round(float(dish['price']) * (1 - float(dish['discount'])), 2))
                             else:
                                 new_price = dish['price']
                             new_dish = Dish(id=dish['id'], title=dish['title'], submenu_id=current_id_submenu,

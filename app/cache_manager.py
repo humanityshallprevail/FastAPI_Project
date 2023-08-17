@@ -1,3 +1,5 @@
+from typing import Any
+
 from redis import asyncio as aioredis  # type: ignore[import]
 
 from config import REDIS_DB, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT
@@ -8,7 +10,7 @@ if REDIS_PASSWORD:
     REDIS_URL = f'redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
 
 
-async def get_redis_connection():
+async def get_redis_connection() -> Any:
     return await aioredis.from_url(REDIS_URL)
 
 

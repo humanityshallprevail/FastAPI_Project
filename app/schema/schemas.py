@@ -55,3 +55,20 @@ class DishModel(DishBase):
         return str(round(float(self.price), 2))
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ------------------------------------
+
+class MenuResponse(MenuBase):
+    submenus: list[SubMenu]
+
+
+class SubMenuResponse(SubMenuBase):
+    dishes: list[DishModel]
+
+
+class CompleteMenu(BaseModel):
+    title: str
+    id: str
+    description: str
+    submenus: list[SubMenuResponse]

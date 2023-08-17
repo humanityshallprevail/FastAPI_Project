@@ -20,7 +20,7 @@ has_run_once = False
 
 
 @celery_app.task(bind=True)
-def add_menu(self):
+def add_menu(self) -> None:
 
     global has_run_once
 

@@ -3,6 +3,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.models import Dish, Menu, SubMenu
+from app.schema.schemas import CompleteMenu
 from app.schema.schemas import Menu as MenuModel
 from app.schema.schemas import MenuCreate
 
@@ -10,7 +11,7 @@ from app.schema.schemas import MenuCreate
 class MenuRepository:
 
     @staticmethod
-    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[dict]:
+    async def read_all_menus(db: AsyncSession, skip: int = 0, limit: int = 100) -> list[CompleteMenu]:
 
         dishes_subquery = select(
             SubMenu.id.label('submenu_id'),
